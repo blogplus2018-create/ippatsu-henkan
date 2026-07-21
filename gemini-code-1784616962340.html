@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一発変換ドットコム - インストール不要・無料のブラウザ完結ツール集</title>
+  <meta name="description" content="サーバー送信なしで安全！ブラウザ上で画像WebP/JPEG一発変換、サイズ調整、切り抜き、ボカシ・モザイク加工、縦書き文字入れが完全無料でできる便利ツール。">
+  <style>
+    :root {
+      --bg-color: #111827;       /* 全体背景 */
+      --card-bg: #1f2937;        /* カード背景 */
+      --accent-color: #3b82f6;    /* メインブルー */
+      --accent-hover: #2563eb;
+      --reset-color: #f97316;
+      --reset-hover: #ea580c;
+      
+      --text-main: #f3f4f6;       /* メイン文字 */
+      --text-sub: #9ca3af;        /* サブ文字 */
+      --border-color: #374151;    /* 枠線 */
+      --success-color: #10b981;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 30px 15px;
+    }
+
+    .container { max-width: 1050px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 30px; }
+    header h1 { 
+      font-size: 2.3rem;
+      color: #ffffff;
+      margin-bottom: 6px; 
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    header p { font-size: 1rem; color: var(--text-sub); font-weight: 400; }
+
+    .security-badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+      padding: 5px 15px;
+      border-radius: 99px;
+      font-size: 0.8rem;
+      margin-top: 10px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      font-weight: 500;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+      margin-bottom: 30px;
+    }
+
+    .drop-zone {
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 50px 20px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s ease;
+    }
+
+    .drop-zone:hover {
+      border-color: var(--accent-color);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .drop-zone.dragover {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: #ffffff;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    }
+
+    .drop-zone p { font-size: 1.1rem; color: var(--text-main); font-weight: 600; margin-bottom: 5px; }
+
+    #fileInput { display: none; }
+
+    .tool-workspace { display: none; margin-top: 25px; }
+
+    .mode-tabs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 0;
+      flex-wrap: wrap;
+    }
+
+    .mode-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: -2px; }
+
+    .tab-btn {
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 3px solid transparent !important;
+      color: var(--text-sub) !important;
+      padding: 12px 20px !important;
+      border-radius: 6px 6px 0 0 !important;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main) !important;
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.06) !important;
+      color: var(--accent-color) !important;
+      border-bottom-color: var(--accent-color) !important;
+      font-weight: 700;
+    }
+
+    .reset-btn {
+      background: transparent;
+      color: var(--reset-color);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 10px;
+    }
+
+    .reset-btn:hover {
+      background: rgba(249, 115, 22, 0.1);
+      border-color: var(--reset-color);
+    }
+
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      background: transparent;
+      padding: 0;
+      border: none;
+      margin-bottom: 25px;
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .control-group { display: flex; flex-direction: column; }
+    .control-group label { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 5px; font-weight: 600; }
+
+    select, input[type="number"], input[type="text"], input[type="color"] {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+
+    select option {
+      background-color: #1f2937 !important;
+      color: #ffffff !important;
+      padding: 10px;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    input[type="color"] { height: 42px; padding: 4px; cursor: pointer; }
+
+    .preset-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 5px; }
+
+    .preset-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--text-main);
+    }
+
+    .preset-btn.active {
+      background: var(--accent-color);
+      color: #ffffff;
+      border-color: var(--accent-color);
+      box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+    }
+
+    .px-inputs { display: flex; align-items: center; gap: 10px; }
+
+    .editor-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 25px;
+      user-select: none;
+    }
+
+    .editor-container {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .editor-container img {
+      display: block;
+      max-width: 100%;
+      max-height: 650px;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .crop-box {
+      position: absolute;
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+      cursor: move;
+      box-sizing: border-box;
+    }
+
+    .crop-handle {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-color: #ffffff;
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .image-comparison {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .img-box {
+      flex: 1;
+      min-width: 290px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .img-box h4 { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 10px; font-weight: 600; }
+
+    .img-box img {
+      max-width: 100%;
+      max-height: 450px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 8px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      background-color: var(--accent-color);
+      color: #ffffff;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn:hover {
+      background-color: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
+    }
+
+    .action-btn {
+      background-color: var(--accent-color);
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .action-btn:hover { background-color: var(--accent-hover); }
+
+    /* SEO・AdSense対策コンテンツのスタイル */
+    .info-section {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+    .info-section h2 {
+      color: var(--text-main);
+      font-size: 1.3rem;
+      margin: 30px 0 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent-color);
+    }
+    .info-section p { margin-bottom: 15px; }
+    .info-section ol { margin-bottom: 15px; padding-left: 20px; }
+    .info-section li { margin-bottom: 6px; }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .feature-card {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .feature-card h4 {
+      color: var(--accent-color);
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+    .footer-legal {
+      margin-top: 50px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+    .footer-legal h3 { color: var(--text-main); margin-bottom: 10px; font-size: 1rem; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>一発変換ドットコム</h1>
+      <p>【画像ツール】WebP一発変換・軽量化・トリミング・ボカシ・文字入れ</p>
+      <div class="security-badge">🔒 画像データはサーバーに一切送信されません（ローカル処理）</div>
+    </header>
+
+    <main class="card">
+      <div class="drop-zone" id="dropZone">
+        <p>画像をドラッグ＆ドロップ</p>
+        <span style="font-size:0.85rem; color:var(--text-sub);">またはクリックしてファイルを選択</span>
+        <input type="file" id="fileInput" accept="image/*">
+      </div>
+
+      <div class="tool-workspace" id="toolWorkspace">
+        <div class="mode-tabs-header">
+          <div class="mode-tabs">
+            <button class="tab-btn active" id="tabResize" onclick="switchMode('resize')">🔍 リサイズ</button>
+            <button class="tab-btn" id="tabCrop" onclick="switchMode('crop')">✂️ トリミング</button>
+            <button class="tab-btn" id="tabBlur" onclick="switchMode('blur')">🌫️ ボカシ加工</button>
+            <button class="tab-btn" id="tabText" onclick="switchMode('text')">✏️ テキスト追加</button>
+          </div>
+          <button class="reset-btn" onclick="resetToOriginalImage()">🔄 元画像に戻す</button>
+        </div>
+
+        <div class="controls-panel">
+          <div class="control-row">
+            <div class="control-group">
+              <label>保存形式</label>
+              <select id="formatSelect" onchange="processImage()">
+                <option value="image/webp" selected>WebP（一発軽量化）</option>
+                <option value="image/jpeg">JPEG</option>
+                <option value="image/png">PNG（※容量指定不可）</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>描画モード</label>
+              <select id="pixelMode" onchange="processImage()">
+                <option value="smooth" selected>滑らか（写真・イラスト）</option>
+                <option value="pixel">くっきり（ドット絵・ロゴ）</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>目標容量上限 (KB)</label>
+              <input type="number" id="targetSizeInput" placeholder="例: 500 (任意)" onchange="processImage()">
+            </div>
+          </div>
+
+          <div id="resizeControls">
+            <div class="control-group">
+              <label>ワンタップ倍率</label>
+              <div class="preset-buttons">
+                <button class="preset-btn active" onclick="setPresetScale(100, this)">100% (原寸)</button>
+                <button class="preset-btn" onclick="setPresetScale(50, this)">50%</button>
+                <button class="preset-btn" onclick="setPresetScale(150, this)">150%</button>
+                <button class="preset-btn" onclick="setPresetScale(200, this)">200% (2倍)</button>
+              </div>
+            </div>
+
+            <div class="control-group" style="margin-top: 10px;">
+              <label>サイズ直接指定（比率は自動連動）</label>
+              <div class="px-inputs">
+                <input type="number" id="widthInput" placeholder="幅 (px)" onchange="onWidthInputChange();">
+                <span>×</span>
+                <input type="number" id="heightInput" placeholder="高さ (px)" onchange="onHeightInputChange();">
+              </div>
+            </div>
+          </div>
+
+          <div id="cropControls" style="display: none;">
+            <div class="control-row">
+              <div class="control-group">
+                <label>アスペクト比固定</label>
+                <div class="preset-buttons">
+                  <button class="preset-btn" onclick="setCropRatio(0, this)">自由指定</button>
+                  <button class="preset-btn active" onclick="setCropRatio(1, this)">正方形 (1:1)</button>
+                  <button class="preset-btn" onclick="setCropRatio(4/3, this)">4:3 (標準)</button>
+                  <button class="preset-btn" onclick="setCropRatio(16/9, this)">16:9 (横長)</button>
+                  <button class="preset-btn" onclick="setCropRatio(3/1, this)">Xヘッダー (3:1)</button>
+                </div>
+              </div>
+              <div class="control-group" style="justify-content: flex-end;">
+                <button class="action-btn" onclick="applyCrop()">選択範囲で切り抜き実行</button>
+              </div>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-sub); margin-top:6px;">
+              ※枠をあわせて「切り抜き実行」を押すと、その範囲で画像を確定します。
+            </p>
+          </div>
+
+          <div id="blurControls" style="display: none;">
+            <div class="control-row">
+              <div class="control-group">
+                <label>ボカシの種類</label>
+                <select id="blurTypeSelect">
+                  <option value="original" selected>🎨 元の色ボカシ（すりガラス風）</option>
+                  <option value="white">⚪ 白ボカシ（明るい隠し）</option>
+                  <option value="black">⚫ 黒ボカシ（目隠し）</option>
+                </select>
+              </div>
+              <div class="control-group" style="justify-content: flex-end;">
+                <button class="action-btn" onclick="applyBlur()">選択範囲にボカシを適応</button>
+              </div>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-sub); margin-top:6px;">
+              ※枠を操作して隠したい場所に合わせて「適応」を押してください。
+            </p>
+          </div>
+
+          <div id="textControls" style="display: none;">
+            <div class="control-row">
+              <div class="control-group" style="grid-column: span 2;">
+                <label>挿入テキスト</label>
+                <input type="text" id="textInput" placeholder="文字を入力" value="Sample Text" oninput="processImage()">
+              </div>
+              <div class="control-group">
+                <label>配置・文字方向</label>
+                <select id="textDirectionSelect" onchange="processImage()">
+                  <option value="horizontal" selected>横書き</option>
+                  <option value="vertical">縦書き</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="control-row" style="margin-top:8px;">
+              <div class="control-group">
+                <label>文字サイズ (px)</label>
+                <input type="number" id="textSizeInput" value="48" onchange="processImage()">
+              </div>
+              <div class="control-group">
+                <label>文字色</label>
+                <input type="color" id="textColorInput" value="#ffffff" onchange="processImage()">
+              </div>
+              <div class="control-group">
+                <label>デザインスタイル</label>
+                <select id="textStyleSelect" onchange="processImage()">
+                  <option value="stroke" selected>黒フチ（読みやすい）</option>
+                  <option value="banner">黒帯バック</option>
+                  <option value="plain">文字のみ</option>
+                </select>
+              </div>
+            </div>
+            <p style="font-size:0.8rem; color:var(--accent-color); margin-top:6px;">
+              💡 下のプレビュー上で文字を直接ドラッグすると自由な場所に移動できます！
+            </p>
+          </div>
+
+        </div>
+
+        <div id="cropEditorArea" class="editor-wrapper" style="display: none;">
+          <div class="editor-container" id="cropContainer">
+            <img id="cropBgImg" src="">
+            <div class="crop-box" id="cropBox">
+              <div class="crop-handle tl" data-handle="tl"></div>
+              <div class="crop-handle tr" data-handle="tr"></div>
+              <div class="crop-handle bl" data-handle="bl"></div>
+              <div class="crop-handle br" data-handle="br"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-container">
+          <div class="image-comparison">
+            <div class="img-box" id="originalImgBox">
+              <h4>編集中のベース画像</h4>
+              <img id="originalImg" src="">
+              <div id="originalInfo" style="font-size:0.85rem; color:var(--text-sub); margin-top:5px;">-</div>
+            </div>
+            <div class="img-box">
+              <h4>処理後プレビュー（拡大表示）</h4>
+              <div style="position: relative; display: inline-block; max-width: 100%;">
+                <img id="convertedImg" src="" style="cursor: pointer;" title="ダブルクリックで元の解像度でダウンロード">
+              </div>
+              <div id="convertedInfo" style="font-size:0.85rem; color:var(--text-sub); margin-top:5px;">-</div>
+              <div style="font-size:0.8rem; color:var(--accent-color); margin-top:4px;">💡 ダブルクリックで元の解像度のまま即保存</div>
+            </div>
+          </div>
+
+          <a id="downloadBtn" class="btn" download="image">一発変換してダウンロード</a>
+        </div>
+      </div>
+
+      <!-- SEO・AdSense対策コンテンツ -->
+      <section class="info-section">
+        <h2>一発変換ドットコムとは？（完全無料・ブラウザ完結ツール）</h2>
+        <p>
+          「一発変換ドットコム」は、ソフトウェアのインストール不要・完全無料で使えるブラウザ完結型のWeb便利ツールサイトです。
+          画像の軽量化（WebP/JPEG変換）、目標容量を指定した自動圧縮、自由なトリミング、プライバシー保護のためのモザイク・ボカシ加工、縦書き対応のテキスト挿入がこれ1つで一発で完了します。
+        </p>
+
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h4>🔒 サーバー送信なしで安心安全</h4>
+            <p>アップロードした画像はすべてお使いのブラウザ内（ローカル）で即座に処理されます。外部サーバーに画像データが送信されることは一切ないため、個人情報や機密画像も安心して編集できます。</p>
+          </div>
+          <div class="feature-card">
+            <h4>⚡ 次世代WebPへ一発変換</h4>
+            <p>次世代画像フォーマット「WebP」への変換に対応。画質を保ったままファイルサイズを劇的に軽量化できるため、ブログやWebサイトの表示速度向上、SNS投稿に最適です。</p>
+          </div>
+          <div class="feature-card">
+            <h4>🎯 目標容量（KB）を直接指定</h4>
+            <p>「〇〇KB以下に抑えたい」というファイルサイズ指定機能を搭載。数値を入力するだけで自動で最適品質を計算して限界まで圧縮します。</p>
+          </div>
+        </div>
+
+        <h2>主な機能と使い方</h2>
+        <ol>
+          <li><strong>画像の読み込み：</strong> 編集したい画像をドラッグ＆ドロップするか、ファイル選択エリアをクリックして読み込みます。</li>
+          <li><strong>リサイズ・フォーマット一発変換：</strong> WebP / JPEG / PNG の選択や、％指定・px指定でのサイズ変更が可能です。</li>
+          <li><strong>トリミング・切り抜き：</strong> 自由指定のほか、正方形(1:1)や16:9、X(Twitter)ヘッダーサイズ(3:1)にワンタップで合わせられます。</li>
+          <li><strong>ボカシ・目隠し加工：</strong> 隠したい範囲を選択して、すりガラス風ボカシや黒帯・白帯を一発適応。</li>
+          <li><strong>テキスト追加（文字入れ）：</strong> 横書きはもちろん、日本語の縦書きにも対応。フチ取りや帯背景で読みやすく装飾可能です。</li>
+        </ol>
+
+        <div class="footer-legal">
+          <h3>プライバシーポリシー・免責事項</h3>
+          <p>
+            <strong>【データの取り扱いについて】</strong><br>
+            当サイトで処理される画像データは、お客様の端末（ブラウザ）内でのみ処理されます。当サイトのサーバーに画像がアップロード・保存されることはありません。
+          </p>
+          <p>
+            <strong>【広告配信について】</strong><br>
+            当サイトでは、第三者配信の広告サービス（Google AdSense等）を利用する予定です。広告配信事業者は、ユーザーの興味に応じた商品やサービスの広告を表示するため、当サイトや他サイトへのアクセスに関する情報「Cookie」(氏名、住所、メール アドレス、電話番号は含まれません) を使用することがあります。
+          </p>
+          <p>
+            <strong>【免責事項】</strong><br>
+            当サイトの利用により生じた直接的・間接的な損害について、運営者は一切の責任を負いかねます。あらかじめご了承ください。
+          </p>
+          <!-- ★作成した専用Gmailアドレスなどをここに記述してください -->
+          <p style="margin-top: 15px; text-align: right; font-weight: 600;">
+            お問い合わせ先: 運営事務局 (ippatsu.henkan.contact@gmail.com)
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let rawImage = null;
+    let rawFileName = "";
+    let rawFileSize = 0;
+    let currentMode = 'resize';
+
+    let workCanvas = document.createElement('canvas');
+    let workCtx = workCanvas.getContext('2d');
+
+    let textPos = { x: 0.5, y: 0.5 };
+    let isDraggingText = false;
+
+    let targetRatio = 1;
+    let cropRect = { x: 0, y: 0, w: 100, h: 100 };
+    let isDraggingCrop = false;
+    let activeHandle = null;
+    let dragStart = { x: 0, y: 0 };
+    let cropStartRect = { ...cropRect };
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const cropBox = document.getElementById('cropBox');
+    const cropBgImg = document.getElementById('cropBgImg');
+    const convertedImg = document.getElementById('convertedImg');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) handleFile(e.target.files[0]);
+    });
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+      dropZone.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); });
+    });
+    ['dragenter', 'dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('dragover')));
+    ['dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('dragover')));
+
+    dropZone.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
+
+    convertedImg.addEventListener('dblclick', function() {
+      if (!rawImage) return;
+      
+      const format = document.getElementById('formatSelect').value;
+      const pixelMode = document.getElementById('pixelMode').value;
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = (pixelMode !== 'pixel');
+      
+      canvas.width = rawImage.width;
+      canvas.height = rawImage.height;
+      ctx.drawImage(rawImage, 0, 0);
+      
+      const dataUrl = canvas.toDataURL(format, 0.85);
+      
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `${rawFileName}_original.${format.split('/')[1]}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) return;
+      rawFileName = file.name.substring(0, file.name.lastIndexOf('.')) || "converted";
+      rawFileSize = file.size;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        rawImage = new Image();
+        rawImage.onload = function() {
+          resetToOriginalImage();
+          document.getElementById('toolWorkspace').style.display = 'block';
+        };
+        rawImage.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetToOriginalImage() {
+      if (!rawImage) return;
+
+      workCanvas.width = rawImage.width;
+      workCanvas.height = rawImage.height;
+      workCtx.drawImage(rawImage, 0, 0);
+
+      updateWorkImageUI();
+      textPos = { x: 0.5, y: 0.5 };
+      setPresetScale(100);
+      resetCropRect();
+      processImage();
+    }
+
+    function updateWorkImageUI() {
+      const dataUrl = workCanvas.toDataURL();
+      document.getElementById('originalImg').src = dataUrl;
+      cropBgImg.src = dataUrl;
+      document.getElementById('originalInfo').innerText = `${rawImage.width} x ${rawImage.height}px (${formatBytes(rawFileSize)})`;
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('#resizeControls, #cropControls, #blurControls, #textControls').forEach(el => el.style.display = 'none');
+
+      if (mode === 'resize') {
+        document.getElementById('tabResize').classList.add('active');
+        document.getElementById('resizeControls').style.display = 'block';
+      } else if (mode === 'crop') {
+        document.getElementById('tabCrop').classList.add('active');
+        document.getElementById('cropControls').style.display = 'block';
+      } else if (mode === 'blur') {
+        document.getElementById('tabBlur').classList.add('active');
+        document.getElementById('blurControls').style.display = 'block';
+      } else if (mode === 'text') {
+        document.getElementById('tabText').classList.add('active');
+        document.getElementById('textControls').style.display = 'block';
+      }
+
+      const showBoxEditor = (mode === 'crop' || mode === 'blur');
+      document.getElementById('cropEditorArea').style.display = showBoxEditor ? 'flex' : 'none';
+      document.getElementById('originalImgBox').style.display = showBoxEditor ? 'none' : 'block';
+
+      if (showBoxEditor) {
+        if (mode === 'blur') targetRatio = 0;
+        setTimeout(resetCropRect, 50);
+      } else {
+        processImage();
+      }
+    }
+
+    function setPresetScale(percent, btn) {
+      if (!rawImage) return;
+      const w = Math.round((rawImage.width * percent) / 100);
+      const h = Math.round((rawImage.height * percent) / 100);
+      document.getElementById('widthInput').value = w;
+      document.getElementById('heightInput').value = h;
+      if (btn) setActive(btn);
+      processImage();
+    }
+
+    function onWidthInputChange() {
+      if (!rawImage) return;
+      let w = parseInt(document.getElementById('widthInput').value) || rawImage.width;
+      document.getElementById('heightInput').value = Math.round((rawImage.height * w) / rawImage.width);
+      processImage();
+    }
+
+    function onHeightInputChange() {
+      if (!rawImage) return;
+      let h = parseInt(document.getElementById('heightInput').value) || rawImage.height;
+      document.getElementById('widthInput').value = Math.round((rawImage.width * h) / rawImage.height);
+      processImage();
+    }
+
+    function setCropRatio(ratio, btn) {
+      targetRatio = ratio;
+      if (btn) setActive(btn);
+      resetCropRect();
+    }
+
+    function setActive(btn) {
+      btn.parentElement.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function resetCropRect() {
+      if (!cropBgImg.clientWidth) return;
+      const cw = cropBgImg.clientWidth;
+      const ch = cropBgImg.clientHeight;
+
+      let w = cw * 0.6;
+      let h = ch * 0.6;
+
+      if (targetRatio > 0) {
+        if (w / h > targetRatio) w = h * targetRatio;
+        else h = w / targetRatio;
+      }
+
+      cropRect = { x: (cw - w) / 2, y: (ch - h) / 2, w: w, h: h };
+      updateCropBoxUI();
+      processImage();
+    }
+
+    function updateCropBoxUI() {
+      cropBox.style.left = `${cropRect.x}px`;
+      cropBox.style.top = `${cropRect.y}px`;
+      cropBox.style.width = `${cropRect.w}px`;
+      cropBox.style.height = `${cropRect.h}px`;
+    }
+
+    cropBox.addEventListener('mousedown', startCropDrag);
+    window.addEventListener('mousemove', onCropDrag);
+    window.addEventListener('mouseup', endCropDrag);
+
+    cropBox.addEventListener('touchstart', startCropDrag, {passive: false});
+    window.addEventListener('touchmove', onCropDrag, {passive: false});
+    window.addEventListener('touchend', endCropDrag);
+
+    function getPos(e) {
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX, y: clientY };
+    }
+
+    function startCropDrag(e) {
+      e.preventDefault();
+      dragStart = getPos(e);
+      cropStartRect = { ...cropRect };
+      activeHandle = e.target.classList.contains('crop-handle') ? e.target.getAttribute('data-handle') : 'move';
+      isDraggingCrop = true;
+    }
+
+    function onCropDrag(e) {
+      if (!isDraggingCrop) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      const dx = pos.x - dragStart.x;
+      const dy = pos.y - dragStart.y;
+      const cw = cropBgImg.clientWidth;
+      const ch = cropBgImg.clientHeight;
+
+      if (activeHandle === 'move') {
+        let newX = Math.max(0, Math.min(cw - cropStartRect.w, cropStartRect.x + dx));
+        let newY = Math.max(0, Math.min(ch - cropStartRect.h, cropStartRect.y + dy));
+        cropRect.x = newX;
+        cropRect.y = newY;
+      } else {
+        let newW = cropStartRect.w, newH = cropStartRect.h, newX = cropStartRect.x, newY = cropStartRect.y;
+
+        if (activeHandle.includes('r')) newW = Math.max(30, cropStartRect.w + dx);
+        if (activeHandle.includes('l')) {
+          if (cropStartRect.w - dx > 30) { newW = cropStartRect.w - dx; newX = cropStartRect.x + dx; }
+        }
+        if (activeHandle.includes('b')) newH = Math.max(30, cropStartRect.h + dy);
+        if (activeHandle.includes('t')) {
+          if (cropStartRect.h - dy > 30) { newH = cropStartRect.h - dy; newY = cropStartRect.y + dy; }
+        }
+
+        if (targetRatio > 0) {
+          if (activeHandle === 'br' || activeHandle === 'tl') newH = newW / targetRatio;
+          else newW = newH * targetRatio;
+        }
+
+        if (newX >= 0 && newY >= 0 && newX + newW <= cw && newY + newH <= ch) {
+          cropRect = { x: newX, y: newY, w: newW, h: newH };
+        }
+      }
+
+      updateCropBoxUI();
+      processImage();
+    }
+
+    function endCropDrag() {
+      isDraggingCrop = false;
+      activeHandle = null;
+    }
+
+    convertedImg.addEventListener('mousedown', startTextDrag);
+    window.addEventListener('mousemove', onTextDrag);
+    window.addEventListener('mouseup', endTextDrag);
+
+    convertedImg.addEventListener('touchstart', startTextDrag, {passive: false});
+    window.addEventListener('touchmove', onTextDrag, {passive: false});
+    window.addEventListener('touchend', endTextDrag);
+
+    function startTextDrag(e) {
+      if (currentMode !== 'text') return;
+      e.preventDefault();
+      isDraggingText = true;
+      updateTextPosByEvent(e);
+    }
+
+    function onTextDrag(e) {
+      if (!isDraggingText || currentMode !== 'text') return;
+      e.preventDefault();
+      updateTextPosByEvent(e);
+    }
+
+    function endTextDrag() {
+      isDraggingText = false;
+    }
+
+    function updateTextPosByEvent(e) {
+      const rect = convertedImg.getBoundingClientRect();
+      const pos = getPos(e);
+      let x = (pos.x - rect.left) / rect.width;
+      let y = (pos.y - rect.top) / rect.height;
+
+      textPos.x = Math.max(0, Math.min(1, x));
+      textPos.y = Math.max(0, Math.min(1, y));
+      processImage();
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function applyCrop() {
+      if (!rawImage) return;
+
+      const scaleX = workCanvas.width / cropBgImg.clientWidth;
+      const scaleY = workCanvas.height / cropBgImg.clientHeight;
+      const realX = cropRect.x * scaleX;
+      const realY = cropRect.y * scaleY;
+      const realW = cropRect.w * scaleX;
+      const realH = cropRect.h * scaleY;
+
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = Math.round(realW);
+      tempCanvas.height = Math.round(realH);
+
+      tempCtx.drawImage(workCanvas, realX, realY, realW, realH, 0, 0, tempCanvas.width, tempCanvas.height);
+
+      workCanvas.width = tempCanvas.width;
+      workCanvas.height = tempCanvas.height;
+      workCtx.drawImage(tempCanvas, 0, 0);
+
+      updateWorkImageUI();
+      document.getElementById('widthInput').value = workCanvas.width;
+      document.getElementById('heightInput').value = workCanvas.height;
+      
+      resetCropRect();
+      processImage();
+    }
+
+    function applyBlur() {
+      if (!rawImage) return;
+
+      const scaleX = workCanvas.width / cropBgImg.clientWidth;
+      const scaleY = workCanvas.height / cropBgImg.clientHeight;
+      const realX = cropRect.x * scaleX;
+      const realY = cropRect.y * scaleY;
+      const realW = cropRect.w * scaleX;
+      const realH = cropRect.h * scaleY;
+
+      const blurType = document.getElementById('blurTypeSelect').value;
+
+      if (blurType === 'original') {
+        const tmpCanvas = document.createElement('canvas');
+        const tmpCtx = tmpCanvas.getContext('2d');
+        tmpCanvas.width = Math.max(4, Math.round(realW / 20));
+        tmpCanvas.height = Math.max(4, Math.round(realH / 20));
+
+        tmpCtx.drawImage(workCanvas, realX, realY, realW, realH, 0, 0, tmpCanvas.width, tmpCanvas.height);
+        workCtx.imageSmoothingEnabled = true;
+        workCtx.drawImage(tmpCanvas, 0, 0, tmpCanvas.width, tmpCanvas.height, realX, realY, realW, realH);
+      } else {
+        workCtx.fillStyle = (blurType === 'white') ? '#ffffff' : '#000000';
+        workCtx.fillRect(realX, realY, realW, realH);
+      }
+
+      updateWorkImageUI();
+      processImage();
+    }
+
+    function processImage() {
+      if (!rawImage) return;
+
+      const format = document.getElementById('formatSelect').value;
+      const pixelMode = document.getElementById('pixelMode').value;
+      const targetSizeKB = parseFloat(document.getElementById('targetSizeInput').value);
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = (pixelMode !== 'pixel');
+
+      canvas.width = parseInt(document.getElementById('widthInput').value) || workCanvas.width;
+      canvas.height = parseInt(document.getElementById('heightInput').value) || workCanvas.height;
+      ctx.drawImage(workCanvas, 0, 0, canvas.width, canvas.height);
+
+      if (currentMode === 'text') {
+        const text = document.getElementById('textInput').value;
+        if (text.trim() !== "") {
+          const fontSize = parseInt(document.getElementById('textSizeInput').value) || 36;
+          const direction = document.getElementById('textDirectionSelect').value;
+          const style = document.getElementById('textStyleSelect').value;
+          const textColor = document.getElementById('textColorInput').value;
+
+          ctx.font = `bold ${fontSize}px sans-serif`;
+          ctx.textBaseline = 'middle';
+
+          const x = canvas.width * textPos.x;
+          const y = canvas.height * textPos.y;
+
+          if (direction === 'vertical') {
+            const chars = text.split('');
+            const lineHeight = fontSize * 1.1;
+            const totalHeight = chars.length * lineHeight;
+            let startY = y - (totalHeight / 2) + (lineHeight / 2);
+
+            chars.forEach((char, index) => {
+              const charY = startY + (index * lineHeight);
+              
+              if (style === 'banner') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(x - (fontSize * 0.7), charY - (lineHeight / 2), fontSize * 1.4, lineHeight);
+              } else if (style === 'stroke') {
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = Math.max(4, fontSize / 8);
+                ctx.lineJoin = 'round';
+                ctx.textAlign = 'center';
+                ctx.strokeText(char, x, charY);
+              }
+
+              ctx.fillStyle = textColor;
+              ctx.textAlign = 'center';
+              ctx.fillText(char, x, charY);
+            });
+
+          } else {
+            ctx.textAlign = 'center';
+
+            if (style === 'banner') {
+              const bannerHeight = fontSize * 1.5;
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+              ctx.fillRect(0, y - (bannerHeight / 2), canvas.width, bannerHeight);
+            } else if (style === 'stroke') {
+              ctx.strokeStyle = '#000000';
+              ctx.lineWidth = Math.max(4, fontSize / 8);
+              ctx.lineJoin = 'round';
+              ctx.strokeText(text, x, y);
+            }
+
+            ctx.fillStyle = textColor;
+            ctx.fillText(text, x, y);
+          }
+        }
+      }
+
+      let quality = 0.85;
+      let dataUrl = canvas.toDataURL(format, quality);
+
+      if (targetSizeKB && targetSizeKB > 0 && format !== 'image/png') {
+        let minQ = 0.05, maxQ = 0.95;
+        const targetBytes = targetSizeKB * 1024;
+
+        for (let i = 0; i < 6; i++) {
+          quality = (minQ + maxQ) / 2;
+          dataUrl = canvas.toDataURL(format, quality);
+          const currentBytes = Math.round((dataUrl.length - 22) * 3 / 4);
+
+          if (currentBytes > targetBytes) maxQ = quality;
+          else minQ = quality;
+        }
+      }
+
+      const head = 'data:' + format + ';base64,';
+      const sizeInBytes = Math.round((dataUrl.length - head.length) * 3 / 4);
+
+      convertedImg.src = dataUrl;
+      document.getElementById('convertedInfo').innerText = `${canvas.width} x ${canvas.height}px (${formatBytes(sizeInBytes)})`;
+
+      const downloadBtn = document.getElementById('downloadBtn');
+      downloadBtn.href = dataUrl;
+      downloadBtn.download = `${rawFileName}_${currentMode}.${format.split('/')[1]}`;
+    }
+  </script>
+</body>
+</html>
